@@ -5,9 +5,13 @@
 #include <errno.h>
 #include <sys/types.h>
 
+static void exit_clean(void);
+
+static volatile int clientId;
+
 int main(int argc, char *argv[])
 {
-    int clientId, serverId;
+    int serverId;
     int seqLen, msgLen;
     struct request_msg req;
     struct response_msg res;
@@ -18,6 +22,7 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
     seqLen = atoi(argv[1]);
+    atexit(exit_clean);
 
     clientId = msgget(IPC_PRIVATE, IPC_CREAT | IPC_EXCL | S_IRUSR | S_IWUSR | S_IRGRP);
     if(clientId == -1)
@@ -25,7 +30,7 @@ int main(int argc, char *argv[])
         perror("client msgget failed");
         exit(EXIT_FAILURE);
     }
-    serverId = msgget(SERVER_KEY, S_IRUSR | S_IWUSR | S_IRGRP);
+    serverId = msgget(SERVER_KEY, S_IWUSR);
     if(serverId == -1)
     {
         perror("get serverId failed");
@@ -50,4 +55,9 @@ int main(int argc, char *argv[])
     printf("client: %d, seqNum: %d\n", getpid(), res.seqNum);
 
     return 0;
+}
+
+static void exit_clean(void)
+{
+    msgctl(clientId, IPC_RMID, NULL);
 }

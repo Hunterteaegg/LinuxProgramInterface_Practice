@@ -26,6 +26,6 @@ struct response_msg
                          offsetof(struct request_msg, clientId) + sizeof(int))
 #define RESP_MSG_SIZE   (sizeof(int))
 
-#define REQ_TYPE        0
-#define RESP_FAILURE    1
-#define RESP_SEQ        2
+#define REQ_TYPE        (1L << 0) 
+#define RESP_FAILURE    (1L << 1) 
+#define RESP_SEQ        (1L << 2) 
